@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Tropi-Med 🌺 Entradas</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root{
+  --coral:#f4763a;--pink:#e8405a;--dark:#3a1a0a;--med:#b8501a;
+  --light:#fff8f2;--card:#fff;--border:#fdd5b8;--muted:#b8705a;
+  --green:#276749;--green-bg:#f0fff4;--green-b:#48bb78;
+  --red-bg:#fff5f5;--red:#9b2c2c;--red-b:#fc8181;
+  --warn-bg:#fffaf0;--warn:#7b4c1c;--warn-b:#f6ad55;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Nunito',sans-serif;background:var(--light);min-height:100vh}
+
+.header{
+  background:linear-gradient(135deg,#f4763a,#e8405a,#c02858);
+  padding:16px 20px 14px;text-align:center;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 16px rgba(232,64,90,.35);
+}
+.header-title{font-family:'Pacifico',cursive;font-size:28px;color:#fff;text-shadow:1px 2px 0 rgba(0,0,0,.2);line-height:1}
+.header-sub{font-size:12px;color:rgba(255,255,255,.8);font-weight:700;letter-spacing:1px;margin-top:2px}
+.header-counter{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:50px;padding:3px 10px;font-size:11px;font-weight:800;color:#fff}
+
+.tabs{display:flex;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:72px;z-index:99}
+.tab{flex:1;padding:12px 8px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--muted);transition:all .2s;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab.active{color:var(--pink);border-bottom-color:var(--pink);background:#fff5f7}
+
+.panel{display:none;padding:16px;max-width:600px;margin:0 auto}
+.panel.active{display:block}
+
+.form-card{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 2px 20px rgba(244,118,58,.1);border:1.5px solid var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+label{font-size:11px;font-weight:800;color:var(--pink);text-transform:uppercase;letter-spacing:.8px}
+input,select{padding:11px 14px;border:1.5px solid var(--border);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;background:#fffaf7;color:var(--dark);transition:border .2s;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{outline:none;border-color:var(--coral);background:#fff}
+
+.btn-gen{width:100%;padding:15px;background:linear-gradient(135deg,var(--coral),var(--pink));border:none;color:#fff;border-radius:14px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;margin-top:10px;box-shadow:0 4px 16px rgba(232,64,90,.35);transition:transform .15s,opacity .2s}
+.btn-gen:active{transform:scale(.97)}
+.btn-gen:disabled{opacity:.6;cursor:not-allowed}
+
+.preview-label{font-size:12px;font-weight:800;color:var(--med);text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px}
+.ticket{width:100%;max-width:420px;margin:0 auto;background:linear-gradient(160deg,#fde8c8 0%,#f9c5a0 30%,#f4a07a 65%,#ee8075 100%);border-radius:20px;overflow:hidden;position:relative;border:2px solid rgba(255,255,255,.6);box-shadow:0 8px 32px rgba(200,80,50,.25)}
+.t-deco{position:absolute;top:0;right:6px;font-size:20px;opacity:.5;pointer-events:none;line-height:1.4}
+.t-deco2{position:absolute;bottom:8px;left:8px;font-size:26px;opacity:.25;pointer-events:none}
+.t-header{padding:14px 18px 0;display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.t-num{background:rgba(255,255,255,.55);border:1.5px solid rgba(255,255,255,.8);border-radius:50px;padding:3px 12px;font-size:12px;font-weight:800;color:#a83020;letter-spacing:.5px}
+.t-org{background:rgba(255,255,255,.55);border:1.5px solid rgba(255,255,255,.8);border-radius:50px;padding:3px 10px;font-size:11px;font-weight:800;color:#a83020}
+.t-title-wrap{text-align:center;padding:8px 18px 4px;position:relative;z-index:1}
+.t-title{font-family:'Pacifico',cursive;font-size:38px;color:#7a2010;text-shadow:2px 2px 0 rgba(255,255,255,.4);line-height:1}
+.t-subtitle{font-size:11px;font-weight:700;color:#b8401a;letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.t-info-row{display:flex;justify-content:center;gap:8px;padding:6px 18px;position:relative;z-index:1;flex-wrap:wrap}
+.t-pill{background:rgba(255,255,255,.5);border:1.5px solid rgba(255,255,255,.7);border-radius:50px;padding:4px 11px;display:flex;align-items:center;gap:4px}
+.t-pill-text{font-size:11px;font-weight:800;color:#7a2010}
+.t-divider{margin:8px 14px;height:1px;background:repeating-linear-gradient(90deg,rgba(180,80,40,.3) 0,rgba(180,80,40,.3) 8px,transparent 8px,transparent 14px);position:relative;z-index:1}
+.t-divider::before,.t-divider::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:var(--light);top:-9px}
+.t-divider::before{left:-18px}
+.t-divider::after{right:-18px}
+.t-bottom{padding:10px 18px 14px;display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.t-qr{background:#fff;border-radius:10px;padding:6px;box-shadow:0 2px 10px rgba(0,0,0,.12);flex-shrink:0}
+.t-holder{flex:1;min-width:0}
+.t-tipo{display:inline-block;background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff;border-radius:50px;padding:2px 10px;font-size:10px;font-weight:800;letter-spacing:.5px;margin-bottom:4px}
+.t-name{font-size:16px;font-weight:800;color:#5a1a08;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-mesa{font-size:11px;font-weight:600;color:#b8501a;margin-top:1px}
+.t-code{font-size:9px;font-family:monospace;color:#c8805a;margin-top:4px;letter-spacing:1px}
+.t-precio{position:absolute;bottom:12px;right:14px;background:linear-gradient(135deg,var(--pink),#c02040);color:#fff;border-radius:50px;padding:3px 11px;font-size:11px;font-weight:800;box-shadow:0 2px 8px rgba(200,32,64,.3);z-index:2}
+
+.ticket-actions{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.btn-act{padding:9px 16px;border:1.5px solid var(--border);background:#fff;color:var(--med);border-radius:50px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.btn-act:active{background:#fde8d8}
+.btn-act.email-btn{background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff;border-color:transparent}
+.btn-act.email-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* email status */
+.email-status{margin-top:10px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;text-align:center;display:none}
+.email-status.sending{background:#fff8e1;color:#e65100;border:1.5px solid #ffcc02}
+.email-status.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-b)}
+.email-status.err{background:var(--red-bg);color:var(--red);border:1.5px solid var(--red-b)}
+
+/* scanner */
+.scanner-card{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 2px 20px rgba(244,118,58,.1);border:1.5px solid var(--border)}
+.sc-title{font-size:20px;font-weight:800;color:var(--dark);text-align:center;margin-bottom:4px}
+.sc-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px;font-weight:600}
+.sc-row{display:flex;gap:8px;margin-bottom:10px}
+.sc-row input{flex:1;text-transform:uppercase;font-size:15px;letter-spacing:2px}
+.btn-validate{padding:11px 16px;background:linear-gradient(135deg,var(--coral),var(--pink));border:none;color:#fff;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer}
+.btn-cam{width:100%;padding:12px;background:#fff;border:1.5px solid var(--border);color:var(--med);border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+.btn-cam:active{background:#fde8d8}
+.cam-frame{width:100%;max-width:320px;aspect-ratio:1;background:#1a0a04;border-radius:16px;margin:14px auto;overflow:hidden;display:none;position:relative;border:3px solid var(--coral)}
+.cam-frame video{width:100%;height:100%;object-fit:cover;display:block}
+.scan-anim{position:absolute;left:8%;right:8%;height:2.5px;background:rgba(244,118,58,.9);top:20%;animation:scanMove 2s ease-in-out infinite;z-index:2}
+@keyframes scanMove{0%,100%{top:15%}50%{top:78%}}
+.result{display:none;border-radius:16px;padding:16px;margin-top:14px;border:2px solid}
+.result.valid{background:var(--green-bg);border-color:var(--green-b)}
+.result.invalid{background:var(--red-bg);border-color:var(--red-b)}
+.result.used{background:var(--warn-bg);border-color:var(--warn-b)}
+.res-head{font-size:18px;font-weight:800;margin-bottom:4px}
+.result.valid .res-head{color:var(--green)}
+.result.invalid .res-head{color:var(--red)}
+.result.used .res-head{color:var(--warn)}
+.res-body{font-size:13px;font-weight:600;opacity:.75;margin-bottom:6px}
+.res-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.rf{display:flex;flex-direction:column;gap:1px}
+.rf-l{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.5}
+.rf-v{font-size:14px;font-weight:700}
+
+/* list */
+.list-card{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 2px 20px rgba(244,118,58,.1);border:1.5px solid var(--border)}
+.list-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.list-head{font-size:16px;font-weight:800;color:var(--dark)}
+.list-stats{display:flex;gap:6px;flex-wrap:wrap}
+.sp{font-size:11px;font-weight:800;padding:3px 10px;border-radius:50px}
+.sp-t{background:#fde8d8;color:var(--med)}
+.sp-v{background:var(--green-bg);color:var(--green)}
+.sp-u{background:var(--warn-bg);color:var(--warn)}
+.list-search{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:50px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;background:#fffaf7;color:var(--dark);margin-bottom:12px}
+.list-search:focus{outline:none;border-color:var(--coral)}
+.list-items{max-height:55vh;overflow-y:auto}
+.li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;border:1.5px solid #fde8d8;margin-bottom:7px;background:#fffaf7}
+.li-num{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--coral),var(--pink));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.li-info{flex:1;min-width:0}
+.li-name{font-size:14px;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-meta{font-size:11px;color:var(--muted);font-weight:600}
+.li-code{font-size:9px;font-family:monospace;color:#d4a080}
+.li-st{font-size:11px;font-weight:800;padding:3px 9px;border-radius:50px;flex-shrink:0}
+.s-ok{background:var(--green-bg);color:var(--green)}
+.s-used{background:var(--warn-bg);color:var(--warn)}
+.s-sent{background:#e8f4fd;color:#1565c0}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(30,10,5,.92);color:#fff;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;transition:transform .3s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media print{
+  .header,.tabs,.ticket-actions,.btn-gen,.form-card,.preview-label,.email-status{display:none!important}
+  body{background:#fff;padding:0}
+  .panel{display:block!important;padding:0}
+  .ticket{max-width:100%;box-shadow:none}
+  .t-divider::before,.t-divider::after{background:#fff}
+  #panel-scan,#panel-list{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">🌺 Tropi-Med</div>
+  <div class="header-sub">05 DE JUNIO · PARADOX · ASOMED UNL</div>
+  <div class="header-counter" id="headerCounter">0 / 400</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('gen')">🎟️ Generar</button>
+  <button class="tab" onclick="switchTab('scan')">📷 Validar</button>
+  <button class="tab" onclick="switchTab('list')">📋 Lista</button>
+</div>
+
+<!-- GENERATOR -->
+<div id="panel-gen" class="panel active">
+  <div class="form-card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" id="firstName" placeholder="Ej: Andrea" autocomplete="given-name">
+      </div>
+      <div class="form-group">
+        <label>Apellido</label>
+        <input type="text" id="lastName" placeholder="Ej: Torres" autocomplete="family-name">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="ticketType">
+          <option value="Preventa">Preventa — $5</option>
+          <option value="General">General</option>
+          <option value="VIP">VIP</option>
+          <option value="Staff">Staff</option>
+          <option value="Cortesía">Cortesía</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Mesa (opcional)</label>
+        <input type="text" id="tableNum" placeholder="Ej: Mesa 4">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="emailInput" placeholder="ejemplo@correo.com" autocomplete="email">
+      </div>
+    </div>
+    <button class="btn-gen" onclick="generateTicket()">🌺 Generar entrada</button>
+  </div>
+
+  <div id="ticketPreview" style="display:none">
+    <div class="preview-label">Vista previa de entrada</div>
+    <div class="ticket" id="ticketEl">
+      <div class="t-deco">🌸🌺🌸</div>
+      <div class="t-deco2">🍊</div>
+      <div class="t-header">
+        <div class="t-num" id="pNum">#001</div>
+        <div class="t-org">ASOMED · UNL</div>
+      </div>
+      <div class="t-title-wrap">
+        <div class="t-title">Tropi-Med</div>
+        <div class="t-subtitle">La noche tropical del año</div>
+      </div>
+      <div class="t-info-row">
+        <div class="t-pill"><span class="t-pill-text">📅 05 Jun 2026</span></div>
+        <div class="t-pill"><span class="t-pill-text">🕗 20h00</span></div>
+        <div class="t-pill"><span class="t-pill-text">📍 Paradox</span></div>
+      </div>
+      <div class="t-divider"></div>
+      <div class="t-bottom">
+        <div class="t-qr" id="qrContainer"></div>
+        <div class="t-holder">
+          <div class="t-tipo" id="pTipo">Preventa</div>
+          <div class="t-name" id="pName">—</div>
+          <div class="t-mesa" id="pMesa"></div>
+          <div class="t-code" id="pCode">TM-001-XXXX</div>
+        </div>
+      </div>
+      <div class="t-precio" id="pPrecio">Preventa — $5</div>
+    </div>
+
+    <div class="ticket-actions">
+      <button class="btn-act email-btn" id="btnEmail" onclick="sendEmail()">✉️ Enviar al correo</button>
+      <button class="btn-act" onclick="printTicket()">🖨️ Imprimir</button>
+      <button class="btn-act" onclick="copyWhatsapp()">💬 WhatsApp</button>
+      <button class="btn-act" onclick="copyCode()">📋 Código</button>
+    </div>
+    <div class="email-status" id="emailStatus"></div>
+  </div>
+</div>
+
+<!-- SCANNER -->
+<div id="panel-scan" class="panel">
+  <div class="scanner-card">
+    <div class="sc-title">🔍 Validar entrada</div>
+    <div class="sc-sub">Escribe el código o usa la cámara</div>
+    <div class="sc-row">
+      <input type="text" id="manualInput" placeholder="TM-001-XXXX" style="text-transform:uppercase">
+      <button class="btn-validate" onclick="validateManual()">✔</button>
+    </div>
+    <button class="btn-cam" id="camBtn" onclick="toggleCamera()">📷 Activar cámara para escanear QR</button>
+    <div class="cam-frame" id="camFrame">
+      <div class="scan-anim"></div>
+      <video id="camVideo" autoplay playsinline muted></video>
+    </div>
+    <div class="result" id="scanResult">
+      <div class="res-head" id="resTitle"></div>
+      <div class="res-body" id="resSub"></div>
+      <div class="res-fields" id="resFields"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LIST -->
+<div id="panel-list" class="panel">
+  <div class="list-card">
+    <div class="list-top">
+      <span class="list-head">📋 Entradas generadas</span>
+      <div class="list-stats">
+        <span class="sp sp-t" id="statTotal">0/400</span>
+        <span class="sp sp-v" id="statValid">0 válidas</span>
+        <span class="sp sp-u" id="statUsed">0 usadas</span>
+      </div>
+    </div>
+    <input type="text" class="list-search" id="listSearch" placeholder="Buscar por nombre o código..." oninput="renderList()">
+    <div class="list-items" id="listContainer">
+      <div class="empty">🌺<br>Aún no hay entradas generadas</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── EmailJS config ──
+const EMAILJS_PUBLIC_KEY = 'GZw5BhQbknoikmEEQ';
+const EMAILJS_SERVICE_ID = 'service_d7yp3j2';
+const EMAILJS_TEMPLATE_ID = 'template_lm9b4v7';
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
+// ── State ──
+let tickets = JSON.parse(localStorage.getItem('tropimed_tickets') || '[]');
+let ticketCounter = parseInt(localStorage.getItem('tropimed_counter') || '0');
+let currentTicket = null;
+let cameraStream = null;
+let scanInterval = null;
+
+function save(){
+  localStorage.setItem('tropimed_tickets', JSON.stringify(tickets));
+  localStorage.setItem('tropimed_counter', String(ticketCounter));
+  updateHeaderCounter();
+}
+
+function updateHeaderCounter(){
+  document.getElementById('headerCounter').textContent = ticketCounter + ' / 400';
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Tabs ──
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const idx = ['gen','scan','list'].indexOf(tab);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  if(tab !== 'scan') stopCamera();
+  if(tab === 'list') renderList();
+}
+
+// ── Generate ──
+function genCode(n){
+  const p1 = String(n).padStart(3,'0');
+  const p2 = Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4).padEnd(4,'X');
+  return 'TM-' + p1 + '-' + p2;
+}
+
+function generateTicket(){
+  if(ticketCounter >= 400){ showToast('⚠️ Límite de 400 entradas alcanzado'); return; }
+  const first = document.getElementById('firstName').value.trim();
+  const last = document.getElementById('lastName').value.trim();
+  const email = document.getElementById('emailInput').value.trim();
+  if(!first || !last){ showToast('⚠️ Ingresa nombre y apellido'); return; }
+  ticketCounter++;
+  const type = document.getElementById('ticketType').value;
+  const table = document.getElementById('tableNum').value.trim();
+  const code = genCode(ticketCounter);
+  const ticket = {num:ticketCounter, code, first, last, type, table, email, used:false, emailSent:false, createdAt:new Date().toLocaleString('es-EC')};
+  tickets.push(ticket);
+  currentTicket = ticket;
+  save();
+  renderTicket(ticket);
+  // limpiar
+  document.getElementById('firstName').value = '';
+  document.getElementById('lastName').value = '';
+  document.getElementById('tableNum').value = '';
+  document.getElementById('emailInput').value = '';
+  showToast('🎟️ Entrada #' + String(ticket.num).padStart(3,'0') + ' generada');
+}
+
+function renderTicket(t){
+  document.getElementById('pNum').textContent = '#' + String(t.num).padStart(3,'0');
+  document.getElementById('pName').textContent = t.first + ' ' + t.last;
+  document.getElementById('pTipo').textContent = t.type;
+  document.getElementById('pMesa').textContent = t.table || '';
+  document.getElementById('pCode').textContent = t.code;
+  document.getElementById('pPrecio').textContent = t.type === 'Preventa' ? 'Preventa — $5' : t.type;
+  const qrEl = document.getElementById('qrContainer');
+  qrEl.innerHTML = '';
+  new QRCode(qrEl, {text:t.code, width:80, height:80, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H});
+  // estado email
+  const btnEmail = document.getElementById('btnEmail');
+  const statusEl = document.getElementById('emailStatus');
+  statusEl.style.display = 'none';
+  if(t.email){
+    btnEmail.disabled = false;
+    btnEmail.textContent = '✉️ Enviar a ' + t.email;
+  } else {
+    btnEmail.disabled = true;
+    btnEmail.textContent = '✉️ (sin correo)';
+  }
+  document.getElementById('ticketPreview').style.display = 'block';
+  document.getElementById('ticketPreview').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── Send Email ──
+function sendEmail(){
+  if(!currentTicket || !currentTicket.email){ showToast('⚠️ Esta entrada no tiene correo'); return; }
+  const t = currentTicket;
+  const btn = document.getElementById('btnEmail');
+  const statusEl = document.getElementById('emailStatus');
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+  statusEl.className = 'email-status sending';
+  statusEl.textContent = '⏳ Enviando correo a ' + t.email + '...';
+  statusEl.style.display = 'block';
+
+  const mesaText = t.table ? '🍽️ Mesa: ' + t.table : '';
+
+  // Extraer QR como base64
+  let qrBase64 = '';
+  try {
+    const qrImg = document.querySelector('#qrContainer img');
+    if (qrImg) {
+      qrBase64 = qrImg.src; // ya es base64 data URL
+    } else {
+      const qrCanvas = document.querySelector('#qrContainer canvas');
+      if (qrCanvas) qrBase64 = qrCanvas.toDataURL('image/png');
+    }
+  } catch(e) { console.warn('No se pudo extraer QR', e); }
+
+  const params = {
+    to_email:    t.email,
+    to_name:     t.first + ' ' + t.last,
+    ticket_num:  '#' + String(t.num).padStart(3,'0'),
+    ticket_tipo: t.type,
+    ticket_code: t.code,
+    ticket_mesa: mesaText,
+    evento_fecha:'05 de Junio, 2026',
+    evento_hora: '20h00',
+    evento_lugar:'Discoteca Paradox, Loja',
+    ticket_qr:   qrBase64,
+  };
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+    .then(() => {
+      t.emailSent = true;
+      save();
+      statusEl.className = 'email-status ok';
+      statusEl.textContent = '✅ Correo enviado correctamente a ' + t.email;
+      btn.textContent = '✅ Correo enviado';
+      showToast('✉️ Enviado a ' + t.email);
+      renderList();
+    })
+    .catch(err => {
+      console.error(err);
+      statusEl.className = 'email-status err';
+      statusEl.textContent = '❌ Error al enviar. Verifica tu conexión o plantilla EmailJS.';
+      btn.disabled = false;
+      btn.textContent = '✉️ Reintentar envío';
+      showToast('❌ Error al enviar correo');
+    });
+}
+
+// ── Validate ──
+function validateCode(code){
+  const c = code.trim().toUpperCase();
+  const el = document.getElementById('scanResult');
+  el.style.display = 'block';
+  el.className = 'result';
+  const t = tickets.find(x => x.code === c);
+  if(!t){
+    el.classList.add('invalid');
+    document.getElementById('resTitle').textContent = '❌ Entrada no válida';
+    document.getElementById('resSub').textContent = 'Este código no existe en el sistema.';
+    document.getElementById('resFields').innerHTML = '';
+    showToast('❌ Código no encontrado');
+    return;
+  }
+  if(t.used){
+    el.classList.add('used');
+    document.getElementById('resTitle').textContent = '⚠️ Entrada ya usada';
+    document.getElementById('resSub').textContent = 'Esta entrada fue escaneada anteriormente.';
+    document.getElementById('resFields').innerHTML = buildFields(t);
+    showToast('⚠️ Entrada ya utilizada');
+    return;
+  }
+  t.used = true;
+  save();
+  el.classList.add('valid');
+  document.getElementById('resTitle').textContent = '✅ ¡Entrada válida!';
+  document.getElementById('resSub').textContent = 'Acceso autorizado — bienvenid@ a Tropi-Med 🌺';
+  document.getElementById('resFields').innerHTML = buildFields(t);
+  showToast('✅ ' + t.first + ' ' + t.last + ' — acceso OK');
+}
+
+function buildFields(t){
+  return `<div class="rf"><span class="rf-l">Nombre</span><span class="rf-v">${t.first} ${t.last}</span></div>
+  <div class="rf"><span class="rf-l">Tipo</span><span class="rf-v">${t.type}</span></div>
+  <div class="rf"><span class="rf-l">Nº entrada</span><span class="rf-v">#${String(t.num).padStart(3,'0')}</span></div>
+  ${t.table ? `<div class="rf"><span class="rf-l">Mesa</span><span class="rf-v">${t.table}</span></div>` : ''}
+  ${t.email ? `<div class="rf"><span class="rf-l">Correo</span><span class="rf-v" style="font-size:12px">${t.email}</span></div>` : ''}`;
+}
+
+function validateManual(){
+  const v = document.getElementById('manualInput').value;
+  if(!v){ showToast('Ingresa un código'); return; }
+  validateCode(v);
+}
+
+// ── Camera ──
+async function toggleCamera(){
+  if(cameraStream){ stopCamera(); return; }
+  const frame = document.getElementById('camFrame');
+  const video = document.getElementById('camVideo');
+  const btn = document.getElementById('camBtn');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+    });
+    cameraStream = stream;
+    video.srcObject = stream;
+    frame.style.display = 'block';
+    btn.textContent = '⛔ Detener cámara';
+
+    await new Promise(r => video.onloadedmetadata = r);
+    video.play();
+
+    // Intentar BarcodeDetector nativo (Chrome Android, Safari 17+)
+    if('BarcodeDetector' in window){
+      const detector = new BarcodeDetector({formats:['qr_code']});
+      scanInterval = setInterval(async () => {
+        try {
+          const codes = await detector.detect(video);
+          if(codes.length > 0){
+            stopCamera();
+            document.getElementById('manualInput').value = codes[0].rawValue;
+            validateCode(codes[0].rawValue);
+          }
+        } catch(e){}
+      }, 300);
+    } else {
+      // Fallback: jsQR con attemptBoth
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      scanInterval = setInterval(() => {
+        if(video.readyState === video.HAVE_ENOUGH_DATA){
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0);
+          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const r = jsQR(img.data, img.width, img.height, {inversionAttempts:'attemptBoth'});
+          if(r){ stopCamera(); document.getElementById('manualInput').value = r.data; validateCode(r.data); }
+        }
+      }, 300);
+    }
+  } catch(e){
+    showToast('No se pudo acceder a la cámara');
+  }
+}
+
+function stopCamera(){
+  if(scanInterval){ clearInterval(scanInterval); scanInterval = null; }
+  if(cameraStream){ cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  document.getElementById('camFrame').style.display = 'none';
+  document.getElementById('camBtn').textContent = '📷 Activar cámara para escanear QR';
+}
+
+// ── List ──
+function renderList(){
+  const q = (document.getElementById('listSearch').value || '').toLowerCase();
+  const used = tickets.filter(t => t.used).length;
+  document.getElementById('statTotal').textContent = ticketCounter + '/400';
+  document.getElementById('statValid').textContent = (tickets.length - used) + ' válidas';
+  document.getElementById('statUsed').textContent = used + ' usadas';
+  const filtered = tickets.filter(t =>
+    (t.first + ' ' + t.last).toLowerCase().includes(q) ||
+    t.code.toLowerCase().includes(q) ||
+    String(t.num).includes(q)
+  );
+  const c = document.getElementById('listContainer');
+  if(!filtered.length){
+    c.innerHTML = '<div class="empty">🌺<br>' + (tickets.length ? 'Sin resultados' : 'Aún no hay entradas generadas') + '</div>';
+    return;
+  }
+  c.innerHTML = [...filtered].reverse().map(t => `
+    <div class="li">
+      <div class="li-num">#${String(t.num).padStart(3,'0')}</div>
+      <div class="li-info">
+        <div class="li-name">${t.first} ${t.last}</div>
+        <div class="li-meta">${t.type}${t.table ? ' · ' + t.table : ''}${t.email ? ' · ' + t.email : ''}</div>
+        <div class="li-code">${t.code}${t.emailSent ? ' · ✉️ enviado' : ''}</div>
+      </div>
+      <span class="li-st ${t.used ? 's-used' : 's-ok'}">${t.used ? 'Usada' : 'Válida'}</span>
+    </div>`).join('');
+}
+
+// ── Actions ──
+function copyCode(){
+  if(!currentTicket) return;
+  navigator.clipboard.writeText(currentTicket.code)
+    .then(() => showToast('📋 Código copiado: ' + currentTicket.code))
+    .catch(() => showToast('Código: ' + currentTicket.code));
+}
+
+function copyWhatsapp(){
+  if(!currentTicket) return;
+  const t = currentTicket;
+  const msg = `🌺 *TROPI-MED* 🌺\n📅 05 de Junio, 2026 · 20h00\n📍 Discoteca Paradox, Loja\n\n🎟️ Entrada *#${String(t.num).padStart(3,'0')}* — *${t.type}*\n👤 ${t.first} ${t.last}${t.table ? '\n🍽️ ' + t.table : ''}\n\n🔑 Código de acceso: \`${t.code}\`\n\n_Presenta este código al ingreso._\n¡Te esperamos! 🔥`;
+  navigator.clipboard.writeText(msg)
+    .then(() => showToast('💬 Mensaje copiado para WhatsApp'))
+    .catch(() => alert(msg));
+}
+
+function printTicket(){ window.print(); }
+
+document.getElementById('manualInput').addEventListener('keydown', e => { if(e.key === 'Enter') validateManual(); });
+updateHeaderCounter();
+</script>
+</body>
+</html>
