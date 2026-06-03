@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tropi-Med 🌺 Entradas</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ══════════════════════════════════════════
+//  🔥 PEGA AQUÍ TU firebaseConfig
+// ══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDVehqkACF6tjz0XPRXNQldTXshf1LnPQ8",
+  authDomain: "tropimed-54c39.firebaseapp.com",
+  projectId: "tropimed-54c39",
+  storageBucket: "tropimed-54c39.firebasestorage.app",
+  messagingSenderId: "540524994488",
+  appId: "1:540524994488:web:eaf2f8b3fee539d6cff94d"
+};
+// ══════════════════════════════════════════
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Exponer al scope global
+window._db = db;
+window._fbFns = { doc, setDoc, getDoc, updateDoc, collection, getDocs };
+window._firebaseReady = true;
+window.dispatchEvent(new Event('firebaseReady'));
+</script>
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style>
+:root{
+  --coral:#f4763a;--pink:#e8405a;--dark:#3a1a0a;
+  --light:#fff8f2;--card:#fff;--border:#fdd5b8;--muted:#b8705a;
+  --green:#276749;--green-bg:#f0fff4;--green-b:#48bb78;
+  --red-bg:#fff5f5;--red:#9b2c2c;--red-b:#fc8181;
+  --warn-bg:#fffaf0;--warn:#7b4c1c;--warn-b:#f6ad55;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Nunito',sans-serif;background:var(--light);min-height:100vh}
+
+.header{background:linear-gradient(135deg,#f4763a,#e8405a,#c02858);padding:16px 20px 14px;text-align:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(232,64,90,.35)}
+.header-title{font-family:'Pacifico',cursive;font-size:28px;color:#fff;text-shadow:1px 2px 0 rgba(0,0,0,.2);line-height:1}
+.header-sub{font-size:12px;color:rgba(255,255,255,.8);font-weight:700;letter-spacing:1px;margin-top:2px}
+
+.tabs{display:flex;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:72px;z-index:99}
+.tab{flex:1;padding:12px 8px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--muted);transition:all .2s;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab.active{color:var(--pink);border-bottom-color:var(--pink);background:#fff5f7}
+
+.panel{display:none;padding:16px;max-width:600px;margin:0 auto}
+.panel.active{display:block}
+
+/* FORM */
+.form-card{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 2px 20px rgba(244,118,58,.1);border:1.5px solid var(--border)}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+label{font-size:11px;font-weight:800;color:var(--pink);text-transform:uppercase;letter-spacing:.8px}
+input,select{padding:11px 14px;border:1.5px solid var(--border);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;background:#fffaf7;color:var(--dark);transition:border .2s;-webkit-appearance:none}
+input:focus,select:focus{outline:none;border-color:var(--coral);background:#fff}
+.btn-gen{width:100%;padding:15px;background:linear-gradient(135deg,var(--coral),var(--pink));border:none;color:#fff;border-radius:14px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;margin-top:4px;box-shadow:0 4px 16px rgba(232,64,90,.35);transition:transform .15s,opacity .2s}
+.btn-gen:active{transform:scale(.97)}
+.btn-gen:disabled{opacity:.6;cursor:not-allowed}
+
+/* TICKET */
+.preview-label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px}
+.ticket{width:100%;max-width:420px;margin:0 auto;background:linear-gradient(160deg,#fde8c8 0%,#f9c5a0 30%,#f4a07a 65%,#ee8075 100%);border-radius:20px;overflow:hidden;position:relative;border:2px solid rgba(255,255,255,.6);box-shadow:0 8px 32px rgba(200,80,50,.25)}
+.t-deco{position:absolute;top:0;right:6px;font-size:20px;opacity:.5;pointer-events:none;line-height:1.4}
+.t-header{padding:14px 18px 0;display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.t-num{background:rgba(255,255,255,.55);border:1.5px solid rgba(255,255,255,.8);border-radius:50px;padding:3px 12px;font-size:12px;font-weight:800;color:#a83020}
+.t-org{background:rgba(255,255,255,.55);border:1.5px solid rgba(255,255,255,.8);border-radius:50px;padding:3px 10px;font-size:11px;font-weight:800;color:#a83020}
+.t-title-wrap{text-align:center;padding:8px 18px 4px}
+.t-title{font-family:'Pacifico',cursive;font-size:38px;color:#7a2010;text-shadow:2px 2px 0 rgba(255,255,255,.4);line-height:1}
+.t-subtitle{font-size:11px;font-weight:700;color:#b8401a;letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.t-info-row{display:flex;justify-content:center;gap:8px;padding:6px 18px;flex-wrap:wrap}
+.t-pill{background:rgba(255,255,255,.5);border:1.5px solid rgba(255,255,255,.7);border-radius:50px;padding:4px 11px}
+.t-pill-text{font-size:11px;font-weight:800;color:#7a2010}
+.t-divider{margin:8px 14px;height:1px;background:repeating-linear-gradient(90deg,rgba(180,80,40,.3) 0,rgba(180,80,40,.3) 8px,transparent 8px,transparent 14px);position:relative}
+.t-divider::before,.t-divider::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:var(--light);top:-9px}
+.t-divider::before{left:-18px}.t-divider::after{right:-18px}
+.t-bottom{padding:10px 18px 14px;display:flex;align-items:center;gap:12px}
+.t-qr{background:#fff;border-radius:10px;padding:6px;box-shadow:0 2px 10px rgba(0,0,0,.12);flex-shrink:0}
+.t-holder{flex:1;min-width:0}
+.t-tipo{display:inline-block;background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff;border-radius:50px;padding:2px 10px;font-size:10px;font-weight:800;margin-bottom:4px}
+.t-name{font-size:16px;font-weight:800;color:#5a1a08;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-code{font-size:9px;font-family:monospace;color:#c8805a;margin-top:4px;letter-spacing:1px}
+.t-precio{position:absolute;bottom:12px;right:14px;background:linear-gradient(135deg,var(--pink),#c02040);color:#fff;border-radius:50px;padding:3px 11px;font-size:11px;font-weight:800;box-shadow:0 2px 8px rgba(200,32,64,.3)}
+
+.ticket-actions{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.btn-act{padding:9px 16px;border:1.5px solid var(--border);background:#fff;color:var(--muted);border-radius:50px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.btn-act:active{background:#fde8d8}
+.btn-act.email-btn{background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff;border-color:transparent}
+.btn-act.email-btn:disabled{opacity:.6;cursor:not-allowed}
+.email-status{margin-top:10px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;text-align:center;display:none}
+.email-status.sending{background:#fff8e1;color:#e65100;border:1.5px solid #ffcc02}
+.email-status.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-b)}
+.email-status.err{background:var(--red-bg);color:var(--red);border:1.5px solid var(--red-b)}
+
+/* SCANNER */
+.scanner-card{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 2px 20px rgba(244,118,58,.1);border:1.5px solid var(--border)}
+.sc-title{font-size:20px;font-weight:800;color:var(--dark);text-align:center;margin-bottom:4px}
+.sc-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px;font-weight:600}
+.sc-row{display:flex;gap:8px;margin-bottom:10px}
+.sc-row input{flex:1;text-transform:uppercase;font-size:15px;letter-spacing:2px}
+.btn-validate{padding:11px 16px;background:linear-gradient(135deg,var(--coral),var(--pink));border:none;color:#fff;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer}
+.btn-cam{width:100%;padding:12px;background:#fff;border:1.5px solid var(--border);color:var(--muted);border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.btn-cam:active{background:#fde8d8}
+#qr-reader{display:none;width:100%;border-radius:16px;overflow:hidden;border:3px solid var(--coral);margin:8px 0}
+#qr-reader video{border-radius:13px}
+
+.result{display:none;border-radius:16px;padding:16px;margin-top:14px;border:2px solid}
+.result.valid{background:var(--green-bg);border-color:var(--green-b)}
+.result.invalid{background:var(--red-bg);border-color:var(--red-b)}
+.result.used{background:var(--warn-bg);border-color:var(--warn-b)}
+.res-head{font-size:22px;font-weight:900;margin-bottom:4px}
+.result.valid .res-head{color:var(--green)}
+.result.invalid .res-head{color:var(--red)}
+.result.used .res-head{color:var(--warn)}
+.res-body{font-size:13px;font-weight:600;opacity:.75;margin-bottom:6px}
+.res-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.rf{display:flex;flex-direction:column;gap:1px}
+.rf-l{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.5}
+.rf-v{font-size:14px;font-weight:700}
+
+/* LOADER */
+.db-status{text-align:center;padding:30px 20px;font-size:14px;font-weight:700;color:var(--muted)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--coral);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(30,10,5,.92);color:#fff;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;transition:transform .3s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media print{
+  .header,.tabs,.ticket-actions,.btn-gen,.form-card,.preview-label,.email-status{display:none!important}
+  body{background:#fff;padding:0}
+  .panel{display:block!important;padding:0}
+  .ticket{max-width:100%;box-shadow:none}
+  #panel-scan{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">🌺 Tropi-Med</div>
+  <div class="header-sub">05 DE JUNIO · PARADOX · ASOMED UNL</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('gen')">🎟️ Generar</button>
+  <button class="tab" onclick="switchTab('scan')">📷 Validar</button>
+</div>
+
+<!-- GENERATOR -->
+<div id="panel-gen" class="panel active">
+  <div id="genLoading" class="db-status">
+    <div class="spinner"></div>Conectando con la base de datos...
+  </div>
+  <div id="genForm" style="display:none">
+    <div class="form-card">
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" id="fullName" placeholder="Ej: Andrea Torres" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="emailInput" placeholder="ejemplo@correo.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Tipo de entrada</label>
+        <select id="ticketType">
+          <option value="Preventa">Preventa — $5</option>
+          <option value="General">General</option>
+          <option value="VIP">VIP</option>
+          <option value="Staff">Staff</option>
+          <option value="Cortesía">Cortesía</option>
+        </select>
+      </div>
+      <button class="btn-gen" id="btnGenerar" onclick="generateTicket()">🌺 Generar entrada</button>
+    </div>
+
+    <div id="ticketPreview" style="display:none">
+      <div class="preview-label">Vista previa</div>
+      <div class="ticket">
+        <div class="t-deco">🌸🌺🌸</div>
+        <div class="t-header">
+          <div class="t-num" id="pNum">#001</div>
+          <div class="t-org">ASOMED · UNL</div>
+        </div>
+        <div class="t-title-wrap">
+          <div class="t-title">Tropi-Med</div>
+          <div class="t-subtitle">La noche tropical del año</div>
+        </div>
+        <div class="t-info-row">
+          <div class="t-pill"><span class="t-pill-text">📅 05 Jun 2026</span></div>
+          <div class="t-pill"><span class="t-pill-text">🕗 20h00</span></div>
+          <div class="t-pill"><span class="t-pill-text">📍 Paradox</span></div>
+        </div>
+        <div class="t-divider"></div>
+        <div class="t-bottom">
+          <div class="t-qr" id="qrContainer"></div>
+          <div class="t-holder">
+            <div class="t-tipo" id="pTipo">Preventa</div>
+            <div class="t-name" id="pName">—</div>
+            <div class="t-code" id="pCode">TM-001-XXXX</div>
+          </div>
+        </div>
+        <div class="t-precio" id="pPrecio">Preventa — $5</div>
+      </div>
+      <div class="ticket-actions">
+        <button class="btn-act email-btn" id="btnEmail" onclick="sendEmail()">✉️ Enviar al correo</button>
+        <button class="btn-act" onclick="copyWhatsapp()">💬 WhatsApp</button>
+      </div>
+      <div class="email-status" id="emailStatus"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCANNER -->
+<div id="panel-scan" class="panel">
+  <div class="scanner-card">
+    <div class="sc-title">🔍 Validar entrada</div>
+    <div class="sc-sub">Escanea el QR o escribe el código</div>
+    <div class="sc-row">
+      <input type="text" id="manualInput" placeholder="TM-001-XXXX" style="text-transform:uppercase">
+      <button class="btn-validate" onclick="validateManual()">✔</button>
+    </div>
+    <button class="btn-cam" id="camBtn" onclick="toggleCamera()">📷 Escanear QR con cámara</button>
+    <div id="qr-reader"></div>
+    <div class="result" id="scanResult">
+      <div class="res-head" id="resTitle"></div>
+      <div class="res-body" id="resSub"></div>
+      <div class="res-fields" id="resFields"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── EmailJS ──
+const EMAILJS_PUBLIC_KEY  = 'GZw5BhQbknoikmEEQ';
+const EMAILJS_SERVICE_ID  = 'service_d7yp3j2';
+const EMAILJS_TEMPLATE_ID = 'template_lm9b4v7';
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
+let currentTicket = null;
+let html5QrCode   = null;
+let db, fbFns;
+
+// Esperar Firebase
+function waitFirebase(){
+  return new Promise(resolve => {
+    if(window._firebaseReady){ db = window._db; fbFns = window._fbFns; resolve(); return; }
+    window.addEventListener('firebaseReady', () => { db = window._db; fbFns = window._fbFns; resolve(); }, {once:true});
+  });
+}
+
+// ── Init ──
+(async () => {
+  await waitFirebase();
+  document.getElementById('genLoading').style.display = 'none';
+  document.getElementById('genForm').style.display    = 'block';
+})();
+
+// ── Helpers ──
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab')[tab==='gen'?0:1].classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  if(tab !== 'scan') stopCamera();
+}
+
+function genCode(n){
+  const p1 = String(n).padStart(3,'0');
+  const p2 = Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4).padEnd(4,'X');
+  return 'TM-' + p1 + '-' + p2;
+}
+
+// ── Generate ──
+async function generateTicket(){
+  const name  = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('emailInput').value.trim();
+  const type  = document.getElementById('ticketType').value;
+  if(!name){ showToast('⚠️ Ingresa el nombre'); return; }
+
+  const btn = document.getElementById('btnGenerar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Guardando...';
+
+  try {
+    // Obtener contador global de Firebase
+    const { doc, setDoc, getDoc, updateDoc } = fbFns;
+    const counterRef = doc(db, 'meta', 'counter');
+    const counterSnap = await getDoc(counterRef);
+    let num = 1;
+    if(counterSnap.exists()){
+      num = (counterSnap.data().value || 0) + 1;
+      await updateDoc(counterRef, { value: num });
+    } else {
+      await setDoc(counterRef, { value: 1 });
+    }
+
+    const code   = genCode(num);
+    const ticket = { num, code, name, email, type, used: false, emailSent: false, createdAt: new Date().toISOString() };
+
+    // Guardar en Firestore
+    await setDoc(doc(db, 'tickets', code), ticket);
+    currentTicket = ticket;
+
+    renderTicket(ticket);
+    document.getElementById('fullName').value  = '';
+    document.getElementById('emailInput').value = '';
+    showToast('🎟️ Entrada #' + String(num).padStart(3,'0') + ' guardada');
+  } catch(e){
+    console.error(e);
+    showToast('❌ Error al guardar. Verifica Firebase.');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🌺 Generar entrada';
+}
+
+function renderTicket(t){
+  document.getElementById('pNum').textContent   = '#' + String(t.num).padStart(3,'0');
+  document.getElementById('pName').textContent  = t.name;
+  document.getElementById('pTipo').textContent  = t.type;
+  document.getElementById('pCode').textContent  = t.code;
+  document.getElementById('pPrecio').textContent = t.type === 'Preventa' ? 'Preventa — $5' : t.type;
+
+  const qrEl = document.getElementById('qrContainer');
+  qrEl.innerHTML = '';
+  new QRCode(qrEl, { text: t.code, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+
+  const btnEmail = document.getElementById('btnEmail');
+  document.getElementById('emailStatus').style.display = 'none';
+  if(t.email){
+    btnEmail.disabled = false;
+    btnEmail.textContent = '✉️ Enviar a ' + t.email;
+  } else {
+    btnEmail.disabled = true;
+    btnEmail.textContent = '✉️ (sin correo)';
+  }
+  document.getElementById('ticketPreview').style.display = 'block';
+  document.getElementById('ticketPreview').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ── Send Email ──
+async function sendEmail(){
+  if(!currentTicket || !currentTicket.email){ showToast('⚠️ Sin correo'); return; }
+  const t   = currentTicket;
+  const btn = document.getElementById('btnEmail');
+  const statusEl = document.getElementById('emailStatus');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+  statusEl.className = 'email-status sending';
+  statusEl.textContent = '⏳ Enviando correo a ' + t.email + '...';
+  statusEl.style.display = 'block';
+
+  // Extraer QR base64
+  let qrBase64 = '';
+  try {
+    const qrImg    = document.querySelector('#qrContainer img');
+    const qrCanvas = document.querySelector('#qrContainer canvas');
+    if(qrImg)    qrBase64 = qrImg.src;
+    else if(qrCanvas) qrBase64 = qrCanvas.toDataURL('image/png');
+  } catch(e){}
+
+  const params = {
+    to_email:    t.email,
+    to_name:     t.name,
+    ticket_num:  '#' + String(t.num).padStart(3,'0'),
+    ticket_tipo: t.type,
+    ticket_code: t.code,
+    ticket_mesa: '',
+    evento_fecha:'05 de Junio, 2026',
+    evento_hora: '20h00',
+    evento_lugar:'Discoteca Paradox, Loja',
+    ticket_qr:   qrBase64,
+  };
+
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+    const { doc, updateDoc } = fbFns;
+    await updateDoc(doc(db, 'tickets', t.code), { emailSent: true });
+    t.emailSent = true;
+    statusEl.className = 'email-status ok';
+    statusEl.textContent = '✅ Correo enviado a ' + t.email;
+    btn.textContent = '✅ Enviado';
+    showToast('✉️ Correo enviado');
+  } catch(err){
+    console.error(err);
+    statusEl.className = 'email-status err';
+    statusEl.textContent = '❌ Error al enviar. Revisa EmailJS.';
+    btn.disabled = false;
+    btn.textContent = '✉️ Reintentar';
+  }
+}
+
+// ── Validate ──
+async function validateCode(code){
+  const c  = code.trim().toUpperCase();
+  const el = document.getElementById('scanResult');
+  el.style.display = 'block';
+  el.className = 'result';
+  document.getElementById('resTitle').textContent = '⏳ Verificando...';
+  document.getElementById('resSub').textContent   = '';
+  document.getElementById('resFields').innerHTML  = '';
+
+  try {
+    const { doc, getDoc, updateDoc } = fbFns;
+    const snap = await getDoc(doc(db, 'tickets', c));
+
+    if(!snap.exists()){
+      el.classList.add('invalid');
+      document.getElementById('resTitle').textContent = '❌ Entrada no válida';
+      document.getElementById('resSub').textContent   = 'Este código no existe.';
+      showToast('❌ Código no encontrado');
+      return;
+    }
+
+    const t = snap.data();
+
+    if(t.used){
+      el.classList.add('used');
+      document.getElementById('resTitle').textContent = '⚠️ Entrada ya usada';
+      document.getElementById('resSub').textContent   = 'Esta entrada fue escaneada anteriormente.';
+      document.getElementById('resFields').innerHTML  = buildFields(t);
+      showToast('⚠️ Entrada ya utilizada');
+      return;
+    }
+
+    // Marcar como usada en Firebase
+    await updateDoc(doc(db, 'tickets', c), { used: true });
+    el.classList.add('valid');
+    document.getElementById('resTitle').textContent = '✅ ¡Entrada válida!';
+    document.getElementById('resSub').textContent   = 'Acceso autorizado — ¡Bienvenid@ a Tropi-Med! 🌺';
+    document.getElementById('resFields').innerHTML  = buildFields(t);
+    showToast('✅ ' + t.name + ' — acceso OK');
+
+  } catch(e){
+    console.error(e);
+    el.classList.add('invalid');
+    document.getElementById('resTitle').textContent = '❌ Error de conexión';
+    document.getElementById('resSub').textContent   = 'Verifica tu internet e intenta de nuevo.';
+    showToast('❌ Error de conexión');
+  }
+}
+
+function buildFields(t){
+  return `
+    <div class="rf"><span class="rf-l">Nombre</span><span class="rf-v">${t.name}</span></div>
+    <div class="rf"><span class="rf-l">Tipo</span><span class="rf-v">${t.type}</span></div>
+    <div class="rf"><span class="rf-l">Nº entrada</span><span class="rf-v">#${String(t.num).padStart(3,'0')}</span></div>
+    <div class="rf"><span class="rf-l">Código</span><span class="rf-v" style="font-size:11px">${t.code}</span></div>`;
+}
+
+function validateManual(){
+  const v = document.getElementById('manualInput').value;
+  if(!v){ showToast('Ingresa un código'); return; }
+  validateCode(v);
+  document.getElementById('manualInput').value = '';
+}
+
+// ── Camera ──
+function toggleCamera(){
+  if(html5QrCode && html5QrCode.isScanning){ stopCamera(); return; }
+  const btn = document.getElementById('camBtn');
+  const readerDiv = document.getElementById('qr-reader');
+  readerDiv.style.display = 'block';
+  btn.textContent = '⛔ Detener cámara';
+
+  html5QrCode = new Html5Qrcode('qr-reader');
+  html5QrCode.start(
+    { facingMode: 'environment' },
+    { fps: 15, qrbox: { width: 260, height: 260 }, aspectRatio: 1.0 },
+    (decodedText) => {
+      stopCamera();
+      document.getElementById('manualInput').value = decodedText;
+      validateCode(decodedText);
+    },
+    () => {}
+  ).catch(() => {
+    showToast('No se pudo acceder a la cámara');
+    readerDiv.style.display = 'none';
+    btn.textContent = '📷 Escanear QR con cámara';
+  });
+}
+
+function stopCamera(){
+  if(html5QrCode && html5QrCode.isScanning){
+    html5QrCode.stop().then(() => { html5QrCode.clear(); html5QrCode = null; }).catch(()=>{});
+  }
+  document.getElementById('qr-reader').style.display = 'none';
+  document.getElementById('camBtn').textContent = '📷 Escanear QR con cámara';
+}
+
+document.getElementById('manualInput').addEventListener('keydown', e => { if(e.key==='Enter') validateManual(); });
+</script>
+</body>
+</html>
